@@ -1,0 +1,32 @@
+# Ultralytics YOLOv11 training hyperparameters for SAINet
+# This file mirrors the configuration used for SAINet v6.1.
+# When updating the model, only modify this file if the training setup actually changes.
+
+task: 'detect'
+classes: [0]
+epochs: 140
+verbose: true
+batch: 32
+imgsz: 640
+patience: 40
+close_mosaic: 10
+save: true
+save_period: 1
+device: 0
+workers: 8
+cos_lr: true
+lr0: 0.0001
+lrf: 1e-05
+warmup_epochs: 3
+warmup_bias_lr: 1e-06
+optimizer: 'Adam'
+seed: 42
+cache: 'disk'
+multi_scale: true
+# mosaic: 1.0
+# mixup: 0.15
+# copy_paste: 0.3
+# hsv_h: 0.03
+# hsv_s: 0.7
+# hsv_v: 0.4
+# resume: true
