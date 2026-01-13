@@ -1,4 +1,4 @@
-# SAINet – Latest smoke detection checkpoint for the SAI
+# SAINet - Latest smoke detection checkpoint for the SAI
 
 This repository always publishes the **latest production checkpoint** of the computer vision model
 used in the **Sistema de Alerta de Incendios (SAI)**.
@@ -10,14 +10,14 @@ terms of the license.
 > **Current checkpoint**
 >
 >
-> - **Model name**: SAINet  
-> - **Architecture**: Ultralytics YOLOv11m (medium)  
-> - **Checkpoint path**: `model/model.pt`  
-> - **Training hyperparameters**: `config/train_hyperparams.yaml`  
-> - **Main training dataset**: SAINetset 6.1 (smoke / non-smoke)  
+> - **Model name**: SAINet v10.0
+> - **Architecture**: Ultralytics YOLOv12m (medium)
+> - **Checkpoint path**: `model/SAINet_v10.0.pt`
+> - **Training hyperparameters**: `model/train_hyperparams.yaml`
+> - **Main training dataset**: SAINetset 8.0 (~65K images, smoke & fire detection)
 > - **Evaluation datasets**:
->   - Test split of SAINetset 6.1 (generalization)
->   - In-situ SAI dataset (La Rancherita node, Córdoba, Argentina)
+>   - Validation split of SAINetset 8.0 (generalization)
+>   - In-situ SAI datasets (La Rancherita and La Serranita nodes, Cordoba, Argentina)
 
 ---
 
@@ -32,7 +32,7 @@ The repository is kept deliberately small:
   This file. Explains the purpose of the repo, datasets, benchmarks and how to use the current
   checkpoint.
 
-- `config/train_hyperparams.yaml`  
+- `model/train_hyperparams.yaml`  
   YOLO training hyperparameters for the current checkpoint (task, epochs, batch size, image size,
   optimizer, data augmentations, etc.). Use this file as the single source of truth for the
   training configuration.
@@ -47,7 +47,7 @@ The repository is kept deliberately small:
 
 ## Quick usage
 
-The checkpoint is a **Ultralytics YOLOv11** model trained for a **single detection class**: `smoke`.
+The checkpoint is an **Ultralytics YOLOv12** model trained for **two detection classes**: `smoke` and `fire`.
 
 ### Python example
 
@@ -55,11 +55,14 @@ The checkpoint is a **Ultralytics YOLOv11** model trained for a **single detecti
 from ultralytics import YOLO
 
 # Load the latest SAINet checkpoint from this repo
-model = YOLO("model/model.pt")
+model = YOLO("model/SAINet_v10.0.pt")
 
-# Run inference on an image
+# Run inference on an image (both smoke and fire)
 results = model("path/to/an/image.jpg", conf=0.25)
 results.show()  # or results.save()
+
+# Run inference for smoke only
+results = model("path/to/an/image.jpg", conf=0.25, classes=[0])
 ```
 
 ### Inference notes
@@ -82,72 +85,79 @@ When you deploy this model in a different context, you should:
 
 ## Training setup
 
-Training is done with **Ultralytics YOLOv11** on top of **PyTorch**, starting from a COCO-pretrained
-YOLOv11m (medium) backbone and neck.
+Training is done with **Ultralytics YOLOv12** on top of **PyTorch**, starting from a COCO-pretrained
+YOLOv12m (medium) backbone and neck.
 
 All relevant training settings are stored in:
 
-- `config/train_hyperparams.yaml`
+- `model/train_hyperparams.yaml`
 
 This YAML file is meant to be the **canonical training config** for this checkpoint and includes
 (at least):
 
-- task and model type (e.g. `task: detect`, `model: yolo11m`),
-- list of classes used for training (SAINet trains only on `smoke`),
+- task and model type (e.g. `task: detect`, `model: yolo12m`),
+- list of classes used for training (`smoke` and `fire`),
 - number of epochs, batch size, image size,
-- early stopping / patience,
-- optimizer and learning rate schedule,
-- data augmentations.
+- optimizer and learning rate schedule.
 
 ---
 
 ## Datasets
 
-### Current SAINet training dataset (SAINetset 6.1)
+### Current SAINet training dataset (SAINetset 8.0)
 
-The main training dataset, **SAINetset 6.1**, is a curated smoke / non-smoke dataset designed for
-outdoor, long-range wildfire smoke detection. It combines:
+The main training dataset, **SAINetset 8.0**, is a curated smoke & fire detection dataset designed for
+outdoor, long-range wildfire detection. It combines multiple data sources:
 
-1. **D-Fire** – a drone-captured fire & smoke dataset with realistic forest fire scenes.
-2. **SAI field images** – frames from SAI cameras, including:
+1. **D-Fire** - a drone-captured fire & smoke dataset with realistic forest fire scenes.
+2. **Pyronear (pyro-dis)** - wildfire detection images from the Pyronear project.
+3. **HPWREN** - high-resolution wildfire camera images from the HPWREN network.
+4. **day_time_wildfire_v2** - daytime wildfire images.
+5. **SAI field images** - frames from SAI cameras, including:
    - confirmed smoke events (true positives),
    - historical false positives (clouds, haze, reflections, steam, etc.),
-   - “clean” negative frames without smoke.
-3. **Synthetic smoke data** – photo-realistic smoke composited over real SAI backgrounds using open
-   community datasets (e.g. Pyro-SDIS) and modern image editing models.
+   - images from multiple deployed SAI nodes (La Rancherita and La Serranita, Cordoba, Argentina).
+6. **Synthetic smoke data** - photo-realistic smoke composited over real SAI backgrounds.
+7. **Clouds_FP** - curated cloud images to reduce false positives.
 
-SAINetset 6.1 is defined at the level of **images**:
+SAINetset 8.0 is defined at the level of **images**:
 
-- **Positive image**: at least one smoke bounding box.  
-- **Negative image**: no smoke annotations.
+- **Positive image**: at least one smoke or fire bounding box.
+- **Negative image**: no smoke/fire annotations (background only).
 
 #### Composition by split (images)
 
-> These values refer to the current SAINetset 6.1 and are independent of the specific checkpoint.
-
 | Split   | Total images | Positives | Negatives | Positive % | Negative % |
 |---------|-------------:|----------:|----------:|-----------:|-----------:|
-| Train   | 49,928       | 36,011    | 13,917    | 72.1 %     | 27.9 %     |
-| Val     | 6,687        | 4,599     | 2,088     | 68.8 %     | 31.2 %     |
-| Test    | 4,306        | 2,301     | 2,005     | 53.4 %     | 46.6 %     |
-| Overall | 60,921       | 42,911    | 18,010    | 70.4 %     | 29.6 %     |
+| Train   | 56,815       | 38,113    | 18,702    | 67.1 %     | 32.9 %     |
+| Val     | 7,894        | 4,828     | 3,066     | 61.2 %     | 38.8 %     |
+| **Overall** | **64,709** | **42,941** | **21,768** | **66.4 %** | **33.6 %** |
+
+#### Class distribution (bounding boxes)
+
+| Class | Train boxes | Val boxes | Total boxes |
+|-------|------------:|----------:|------------:|
+| smoke | 41,806      | 5,478     | 47,284      |
+| fire  | 13,146      | 1,458     | 14,604      |
 
 The dataset is intentionally rich in:
 
-- diverse **positive smoke patterns**, and  
-- **hard negatives** that are typical sources of false alarms in real SAI deployments.
+- diverse **positive smoke and fire patterns**, and
+- **hard negatives** that are typical sources of false alarms in real SAI deployments (clouds, haze, reflections, steam, etc.).
 
-### In-situ evaluation dataset (La Rancherita)
+### In-situ evaluation datasets
 
-To evaluate performance under real operating conditions, the model is also tested on a separate
-**in-situ dataset**:
+To evaluate performance under real operating conditions, the model is also tested on separate
+**in-situ datasets** from production SAI nodes:
 
-- Images captured by a production SAI node in **La Rancherita (Córdoba, Argentina)**.
-- Contains:
+- **La Rancherita** (Cordoba, Argentina) - first deployed node.
+- **La Serranita** (Cordoba, Argentina) - second deployed node.
+
+These datasets contain:
   - a small number of confirmed smoke events (positives), and
   - a large number of typical background frames (hills, vegetation, clouds, changing lighting).
 - **No synthetic data** and no images from other regions.
-- This dataset is used **only for evaluation**, not for training.
+- These datasets are used **only for evaluation**, not for training.
 
 ---
 
@@ -155,33 +165,33 @@ To evaluate performance under real operating conditions, the model is also teste
 
 This section summarizes the performance of the **current checkpoint** on:
 
-1. The **SAINetset 6.1 test split** (generalization on the main dataset).  
+1. The **SAINetset 6.1 test split** (generalization on the main dataset).
 2. The **in-situ evaluation dataset** (La Rancherita node).
 
 All metrics are for **smoke detection only** (no fire class) using standard Ultralytics metrics:
 
-- P = precision  
-- R = recall  
-- F1 = harmonic mean of P and R  
-- mAP@50 = mean Average Precision at IoU 0.5  
-- mAP@50–95 = mean AP averaged over IoU thresholds from 0.5 to 0.95  
+- P = precision
+- R = recall
+- F1 = harmonic mean of P and R
+- mAP@50 = mean Average Precision at IoU 0.5
+- mAP@50-95 = mean AP averaged over IoU thresholds from 0.5 to 0.95
 
 Two inference configurations are reported:
 
-- **Recall-oriented** – tuned to minimize false negatives (FN ≈ 0), accepting more false positives.  
-- **Precision-oriented** – tuned to reduce false positives while maintaining acceptable recall.
+- **Recall-oriented** - tuned to minimize false negatives (FN ~ 0), accepting more false positives.
+- **Precision-oriented** - tuned to reduce false positives while maintaining acceptable recall.
 
 
-### 1. SAINetset 6.1 – test split
+### 1. SAINetset 8.0 - test split
 
-| Config                                   | P      | R      | F1     | mAP@50 | mAP@50–95 |
+| Config                                   | P      | R      | F1     | mAP@50 | mAP@50-95 |
 |------------------------------------------|--------|--------|--------|--------|-----------|
 | Recall-oriented (conf=0.15, IoU=0.10)    | 0.833  | 0.797  | 0.815  | 0.842  | 0.494     |
 | Precision-oriented (conf=0.15, IoU=0.40) | 0.854  | 0.774  | 0.812  | 0.844  | 0.491     |
 
-### 2. In-situ dataset – La Rancherita
+### 2. In-situ dataset - La Rancherita
 
-| Config                                   | P      | R      | F1     | mAP@50 | mAP@50–95 |
+| Config                                   | P      | R      | F1     | mAP@50 | mAP@50-95 |
 |------------------------------------------|--------|--------|--------|--------|-----------|
 | Recall-oriented (conf=0.25, IoU=0.70)    | 0.859  | 0.861  | 0.860  | 0.906  | 0.697     |
 | Precision-oriented (conf=0.25, IoU=0.10) | 0.883  | 0.842  | 0.862  | 0.900  | 0.697     |
