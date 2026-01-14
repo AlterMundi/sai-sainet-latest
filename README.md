@@ -112,15 +112,8 @@ The main training dataset, **SAINetset 8.0**, is a curated smoke & fire detectio
 outdoor, long-range wildfire detection. It combines multiple data sources:
 
 1. **D-Fire** - a drone-captured fire & smoke dataset with realistic forest fire scenes.
-2. **Pyronear (pyro-dis)** - wildfire detection images from the Pyronear project.
-3. **HPWREN** - high-resolution wildfire camera images from the HPWREN network.
-4. **day_time_wildfire_v2** - daytime wildfire images.
-5. **SAI field images** - frames from SAI cameras, including:
-   - confirmed smoke events (true positives),
-   - historical false positives (clouds, haze, reflections, steam, etc.),
-   - images from multiple deployed SAI nodes (La Rancherita and La Serranita, Cordoba, Argentina).
-6. **Synthetic smoke data** - photo-realistic smoke composited over real SAI backgrounds.
-7. **Clouds_FP** - curated cloud images to reduce false positives.
+2. **Pyronear (pyro-sdis)** - wildfire detection images from the Pyronear project.
+3. **SAI field data** - real-world images from deployed SAI nodes in Córdoba, Argentina.
 
 SAINetset 8.0 is defined at the level of **images**:
 
