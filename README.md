@@ -1,7 +1,7 @@
 # SAINet - Latest smoke detection checkpoint for the SAI
 
 This repository always publishes the **latest production checkpoint** of the computer vision model
-used in the **Sistema de Alerta de Incendios (SAI)**.
+used in the **[Sistema de Alerta de Incendios (SAI)](https://sainet.info)**.
 
 The repo is intentionally minimal: it exposes a single checkpoint file (`model/model.pt`) plus a
 compact configuration file so that others can **download, run and reproduce** the model under the
@@ -14,7 +14,7 @@ terms of the license.
 > - **Architecture**: Ultralytics YOLOv12m (medium)
 > - **Checkpoint path**: `model/SAINet_v10.0.pt`
 > - **Training hyperparameters**: `model/train_hyperparams.yaml`
-> - **Main training dataset**: SAINetset 8.0 (~65K images, smoke & fire detection)
+> - **Main training dataset**: [SAINetset v8.0](https://huggingface.co/datasets/SAINetset/SAINetset_v8.0) (~65K images, smoke & fire detection)
 > - **Evaluation datasets**:
 >   - Validation split of SAINetset 8.0 (generalization)
 >   - In-situ SAI datasets (La Rancherita and La Serranita nodes, Cordoba, Argentina)
@@ -106,6 +106,8 @@ This YAML file is meant to be the **canonical training config** for this checkpo
 
 ### Current SAINet training dataset (SAINetset 8.0)
 
+> **Download the dataset**: [SAINetset v8.0 on Hugging Face](https://huggingface.co/datasets/SAINetset/SAINetset_v8.0)
+
 The main training dataset, **SAINetset 8.0**, is a curated smoke & fire detection dataset designed for
 outdoor, long-range wildfire detection. It combines multiple data sources:
 
@@ -144,6 +146,32 @@ The dataset is intentionally rich in:
 
 - diverse **positive smoke and fire patterns**, and
 - **hard negatives** that are typical sources of false alarms in real SAI deployments (clouds, haze, reflections, steam, etc.).
+
+#### Download SAINetset
+
+The dataset is publicly available on Hugging Face. You can download it using any of these methods:
+
+**Option 1: Git LFS (recommended)**
+```bash
+git lfs install
+git clone https://huggingface.co/datasets/SAINetset/SAINetset_v8.0
+```
+
+**Option 2: Hugging Face Datasets library**
+```python
+from datasets import load_dataset
+
+ds = load_dataset("SAINetset/SAINetset_v8.0")
+sample = ds["train"][0]
+```
+
+**Option 3: Direct use with Ultralytics YOLO**
+```python
+from ultralytics import YOLO
+
+model = YOLO("yolo12m.pt")
+model.train(data="path/to/sainetset/data.yaml", epochs=100)
+```
 
 ### In-situ evaluation datasets
 
@@ -196,6 +224,14 @@ Two inference configurations are reported:
 | Recall-oriented (conf=0.25, IoU=0.70)    | 0.859  | 0.861  | 0.860  | 0.906  | 0.697     |
 | Precision-oriented (conf=0.25, IoU=0.10) | 0.883  | 0.842  | 0.862  | 0.900  | 0.697     |
 
+
+---
+
+## Related Links
+
+- **SAI Project Website**: [sainet.info](https://sainet.info)
+- **Training Dataset**: [SAINetset v8.0 on Hugging Face](https://huggingface.co/datasets/SAINetset/SAINetset_v8.0)
+- **Model Repository**: [sai-sainet-latest on GitHub](https://github.com/SAINetset/sai-sainet-latest)
 
 ---
 
