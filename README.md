@@ -3,7 +3,7 @@
 This repository always publishes the **latest production checkpoint** of the computer vision model
 used in the **[Sistema de Alerta de Incendios (SAI)](https://sainet.info)**.
 
-The repo is intentionally minimal: it exposes a single checkpoint file (`model/model.pt`) plus a
+The repo is intentionally minimal: it exposes a single checkpoint file (`model/SAINet_v10.0.pt`) plus a
 compact configuration file so that others can **download, run and reproduce** the model under the
 terms of the license.
 
@@ -37,7 +37,7 @@ The repository is kept deliberately small:
   optimizer, data augmentations, etc.). Use this file as the single source of truth for the
   training configuration.
 
-- `model/model.pt`  
+- `model/SAINet_v10.0.pt`  
   The **only checkpoint** published here. It always corresponds to the **latest production model**
   used in the SAI system.
 
@@ -186,7 +186,7 @@ These datasets contain:
 
 This section summarizes the performance of the **current checkpoint** on:
 
-1. The **SAINetset 6.1 test split** (generalization on the main dataset).
+1. The **SAINetset 8.0 test split** (generalization on the main dataset).
 2. The **in-situ evaluation dataset** (La Rancherita node).
 
 All metrics are for **smoke detection only** (no fire class) using standard Ultralytics metrics:
@@ -224,7 +224,7 @@ Two inference configurations are reported:
 
 - **SAI Project Website**: [sainet.info](https://sainet.info)
 - **Training Dataset**: [SAINetset v8.0 on Hugging Face](https://huggingface.co/datasets/SAINetset/SAINetset_v8.0)
-- **Model Repository**: [sai-sainet-latest on GitHub](https://github.com/SAINetset/sai-sainet-latest)
+- **Model Repository**: [sai-sainet-latest on GitHub](https://github.com/AlterMundi/sai-sainet-latest)
 
 ---
 
