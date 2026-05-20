@@ -3,16 +3,16 @@
 This repository always publishes the **latest production checkpoint** of the computer vision model
 used in the **[Sistema de Alerta de Incendios (SAI)](https://sainet.info)**.
 
-The repo is intentionally minimal: it exposes a single checkpoint file (`model/SAINet_v10.0.pt`) plus a
+The repo is intentionally minimal: it exposes a single checkpoint file (`model/SAINet_v11.1.pt`) plus a
 compact configuration file so that others can **download, run and reproduce** the model under the
 terms of the license.
 
 > **Current checkpoint**
 >
 >
-> - **Model name**: SAINet v10.0
-> - **Architecture**: Ultralytics YOLOv12m (medium)
-> - **Checkpoint path**: `model/SAINet_v10.0.pt`
+> - **Model name**: SAINet v11.1
+> - **Architecture**: Ultralytics YOLO26m (medium)
+> - **Checkpoint path**: `model/SAINet_v11.1.pt`
 > - **Training hyperparameters**: `model/train_hyperparams.yaml`
 > - **Main training dataset**: [SAINetset v8.0](https://huggingface.co/datasets/SAINetset/SAINetset_v8.0) (~65K images, smoke & fire detection)
 > - **Evaluation datasets**:
@@ -37,7 +37,7 @@ The repository is kept deliberately small:
   optimizer, data augmentations, etc.). Use this file as the single source of truth for the
   training configuration.
 
-- `model/SAINet_v10.0.pt`  
+- `model/SAINet_v11.1.pt`  
   The **only checkpoint** published here. It always corresponds to the **latest production model**
   used in the SAI system.
 
@@ -47,7 +47,7 @@ The repository is kept deliberately small:
 
 ## Quick usage
 
-The checkpoint is an **Ultralytics YOLOv12** model trained for **two detection classes**: `smoke` and `fire`.
+The checkpoint is an **Ultralytics YOLO26** model trained for **two detection classes**: `smoke` and `fire`.
 
 ### Python example
 
@@ -55,7 +55,7 @@ The checkpoint is an **Ultralytics YOLOv12** model trained for **two detection c
 from ultralytics import YOLO
 
 # Load the latest SAINet checkpoint from this repo
-model = YOLO("model/SAINet_v10.0.pt")
+model = YOLO("model/SAINet_v11.1.pt")
 
 # Run inference on an image (both smoke and fire)
 results = model("path/to/an/image.jpg", conf=0.25)
@@ -85,8 +85,8 @@ When you deploy this model in a different context, you should:
 
 ## Training setup
 
-Training is done with **Ultralytics YOLOv12** on top of **PyTorch**, starting from a COCO-pretrained
-YOLOv12m (medium) backbone and neck.
+Training is done with **Ultralytics YOLO26** on top of **PyTorch**, starting from a COCO-pretrained
+YOLO26m (medium) backbone and neck.
 
 All relevant training settings are stored in:
 
@@ -95,7 +95,7 @@ All relevant training settings are stored in:
 This YAML file is meant to be the **canonical training config** for this checkpoint and includes
 (at least):
 
-- task and model type (e.g. `task: detect`, `model: yolo12m`),
+- task and model type (e.g. `task: detect`, `model: yolo26m`),
 - list of classes used for training (`smoke` and `fire`),
 - number of epochs, batch size, image size,
 - optimizer and learning rate schedule.
@@ -162,7 +162,7 @@ sample = ds["train"][0]
 ```python
 from ultralytics import YOLO
 
-model = YOLO("yolo12m.pt")
+model = YOLO("yolo26m.pt")
 model.train(data="path/to/sainetset/data.yaml", epochs=100)
 ```
 

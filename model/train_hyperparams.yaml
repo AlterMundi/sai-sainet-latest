@@ -1,9 +1,9 @@
-# Ultralytics YOLOv12 training hyperparameters for SAINet
-# This file mirrors the configuration used for SAINet v10.0.
+# Ultralytics YOLO26 training hyperparameters for SAINet
+# This file mirrors the configuration used for SAINet v11.1.
 # When updating the model, only modify this file if the training setup actually changes.
 
 task: 'detect'
-model: 'yolo12m'
+model: 'yolo26m'
 classes:
   0: smoke
   1: fire
